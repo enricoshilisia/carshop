@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.pyc
+backend/.venv/
+backend/db.sqlite3
+backend/media/
+backend/staticfiles/
+backend/static/sitemaps/*.xml
+backend/static/feeds/*.xml
+backend/.env
+backend/*.log
+
+# Node / Next.js
+frontend/node_modules/
+frontend/.next/
+frontend/dist/
+frontend/.env.local
+frontend/.env.production
+frontend/next-env.d.ts
+frontend/test-results/
+frontend/playwright-report/
+frontend/screenshots/
+
+# Deploy artifacts
+dist.tgz
+
+# Editors / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Claude Code local settings
+.claude/settings.local.json

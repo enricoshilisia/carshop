@@ -1,0 +1,10 @@
+Django>=5.2,<6
+djangorestframework
+Pillow
+whitenoise
+requests
+python-decouple
+django-treebeard
+openpyxl
+# Production (cPanel/MySQL) only — do not install on Windows dev boxes:
+# mysqlclient

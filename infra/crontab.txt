@@ -1,0 +1,8 @@
+# cPanel cron reference — every command is idempotent and safe to overlap.
+*/5  *  *  *  *  cd ~/backend && ~/venv/bin/python manage.py run_jobs --max-seconds=240 >> ~/logs/jobs.log 2>&1
+17   2  *  *  *  cd ~/backend && ~/venv/bin/python manage.py rebuild_seo_registry >> ~/logs/seo.log 2>&1
+40   2  *  *  *  cd ~/backend && ~/venv/bin/python manage.py build_variant_groups >> ~/logs/seo.log 2>&1
+50   2  *  *  *  cd ~/backend && ~/venv/bin/python manage.py build_sitemaps >> ~/logs/seo.log 2>&1
+10   3  *  *  *  cd ~/backend && ~/venv/bin/python manage.py fitment_audit --email-report >> ~/logs/audit.log 2>&1
+*/15 *  *  *  *  cd ~/backend && ~/venv/bin/python manage.py sync_merchant_feed --delta >> ~/logs/feed.log 2>&1
+30   4  *  *  0  cd ~/backend && ~/venv/bin/python manage.py sync_merchant_feed --full >> ~/logs/feed.log 2>&1
