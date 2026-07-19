@@ -86,8 +86,9 @@ export default function VehicleSelector({ compact = false }: { compact?: boolean
     }
   };
 
+  // text-base on mobile stops iOS auto-zoom on focus; py-3 gives a 44px touch target.
   const selectCls =
-    "w-full rounded-md border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 focus:border-amber focus:outline-none focus:ring-1 focus:ring-amber disabled:bg-slate-100 disabled:text-slate-400";
+    "w-full rounded-md border border-slate-300 bg-white px-3 py-3 text-base text-slate-800 focus:border-amber focus:outline-none focus:ring-1 focus:ring-amber disabled:bg-slate-100 disabled:text-slate-400 sm:py-2.5 sm:text-sm";
 
   const gen = gens.find((g) => g.slug === sel.generation);
   const years: number[] = [];
@@ -105,7 +106,8 @@ export default function VehicleSelector({ compact = false }: { compact?: boolean
       <p className="mb-4 text-xs text-slate-500">
         Select your vehicle — we only show parts verified to fit.
       </p>
-      <div className={`grid gap-3 ${compact ? "sm:grid-cols-5" : "sm:grid-cols-2"}`}>
+      {/* 2-up on phones (less scrolling), row of 5 on desktop when compact */}
+      <div className={`grid grid-cols-2 gap-2.5 sm:gap-3 ${compact ? "sm:grid-cols-5" : "sm:grid-cols-2"}`}>
         <select aria-label="Make" className={selectCls} value={sel.make} onChange={(e) => pick("make", e.target.value)}>
           <option value="">Make</option>
           {makes.map((m) => (
@@ -139,7 +141,7 @@ export default function VehicleSelector({ compact = false }: { compact?: boolean
         <button
           onClick={findParts}
           disabled={!sel.model || busy}
-          className={`rounded-md bg-amber px-5 py-2.5 text-sm font-bold text-navy-900 transition-colors hover:bg-amber-500 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 ${compact ? "" : "sm:col-span-2"}`}
+          className={`col-span-2 rounded-md bg-amber px-5 py-3 text-base font-bold text-navy-900 transition-colors hover:bg-amber-500 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 sm:py-2.5 sm:text-sm ${compact ? "sm:col-span-1" : "sm:col-span-2"}`}
         >
           {busy ? "Finding…" : "Find parts"}
         </button>

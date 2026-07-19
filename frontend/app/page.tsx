@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import VehicleSelector from "@/components/VehicleSelector";
+import HeroCarousel from "@/components/HeroCarousel";
 import { api } from "@/lib/api";
 
 export const revalidate = 3600;
@@ -39,24 +39,8 @@ export default async function HomePage() {
 
   return (
     <div>
-      {/* ============================================= Hero + vehicle selector */}
-      <section className="relative -mx-4 -mt-6 mb-8 bg-navy px-4 pb-14 pt-12 text-white">
-        <div className="mx-auto max-w-7xl">
-          <div className="max-w-2xl">
-            <h1 className="text-3xl font-extrabold leading-tight sm:text-4xl">
-              Parts that fit your car.
-              <span className="block text-amber">Guaranteed.</span>
-            </h1>
-            <p className="mt-3 max-w-xl text-slate-300">
-              Every part checked against your exact make, model, generation and year.
-              No guesswork, no wrong orders, no wasted trips to Kirinyaga Road.
-            </p>
-          </div>
-          <div className="mt-8 max-w-4xl">
-            <VehicleSelector compact />
-          </div>
-        </div>
-      </section>
+      {/* ================== Hero: sliding car photos + rotating headline ==== */}
+      <HeroCarousel />
 
       {/* ======================================================== Trust strip */}
       <section className="mb-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -74,6 +58,41 @@ export default async function HomePage() {
             <p className="mt-0.5 text-xs text-slate-500">{text}</p>
           </div>
         ))}
+      </section>
+
+      {/* ====================================== Vehicle-type image tiles ==== */}
+      <section className="mb-12">
+        <h2 className="mb-4 text-xl font-bold text-navy">Whatever you drive, we cover it</h2>
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4" data-testid="vehicle-type-tiles">
+          {[
+            ["/img/tiles/suv.jpg", "SUVs & 4x4s", "Prado, Harrier, X-Trail, CX-5…", "/car-parts/toyota/land-cruiser-prado"],
+            ["/img/tiles/pickup.jpg", "Pickups & Trucks", "Hilux, D-Max, Ranger, Canter…", "/car-parts/toyota/hilux"],
+            ["/img/tiles/motorcycle.jpg", "Motorcycles", "Boxer, HLX, Ace — boda parts", "/car-parts/bajaj"],
+            ["/img/tiles/garage.jpg", "Service Parts", "Filters, oils & full service kits", "/shop/service-kits-lubricants"],
+          ].map(([img, title, sub, href]) => (
+            <Link
+              key={href}
+              href={href}
+              className="group relative h-44 overflow-hidden rounded-xl sm:h-52"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={img}
+                alt={title}
+                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-navy-900/90 via-navy-900/30 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-4">
+                <p className="font-extrabold text-white drop-shadow">{title}</p>
+                <p className="mt-0.5 text-xs text-slate-200">{sub}</p>
+                <p className="mt-1.5 text-xs font-semibold text-amber opacity-0 transition-opacity group-hover:opacity-100">
+                  Shop now →
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
       </section>
 
       {/* ======================================================= Shop by make */}
@@ -131,32 +150,46 @@ export default async function HomePage() {
           We also stock genuine laptops and mobile phones — same delivery, same M-Pesa checkout.
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Link
-            href="/shop/laptops"
-            className="group relative overflow-hidden rounded-xl bg-navy p-6 text-white transition-shadow hover:shadow-xl"
-          >
-            <p className="text-xs font-semibold uppercase tracking-wider text-amber">Electronics</p>
-            <h3 className="mt-1 text-2xl font-extrabold">Laptops</h3>
-            <p className="mt-1.5 max-w-xs text-sm text-slate-300">
-              Dell, HP, Lenovo & MacBook — business-grade machines with warranty.
-            </p>
-            <span className="mt-4 inline-block rounded-md bg-amber px-4 py-2 text-sm font-bold text-navy-900 transition-colors group-hover:bg-amber-500">
-              Shop laptops{laptops?.product_count ? ` (${laptops.product_count})` : ""} →
-            </span>
-          </Link>
-          <Link
-            href="/shop/phones"
-            className="group relative overflow-hidden rounded-xl bg-navy-700 p-6 text-white transition-shadow hover:shadow-xl"
-          >
-            <p className="text-xs font-semibold uppercase tracking-wider text-amber">Electronics</p>
-            <h3 className="mt-1 text-2xl font-extrabold">Mobile Phones</h3>
-            <p className="mt-1.5 max-w-xs text-sm text-slate-300">
-              Samsung, iPhone, Tecno, Infinix & Xiaomi — sealed units, Kenya warranty.
-            </p>
-            <span className="mt-4 inline-block rounded-md bg-amber px-4 py-2 text-sm font-bold text-navy-900 transition-colors group-hover:bg-amber-500">
-              Shop phones{phones?.product_count ? ` (${phones.product_count})` : ""} →
-            </span>
-          </Link>
+          {[
+            {
+              href: "/shop/laptops",
+              img: "/img/tiles/laptop.jpg",
+              title: "Laptops",
+              sub: "Dell, HP, Lenovo & MacBook — business-grade machines with warranty.",
+              cta: `Shop laptops${laptops?.product_count ? ` (${laptops.product_count})` : ""} →`,
+            },
+            {
+              href: "/shop/phones",
+              img: "/img/tiles/phone.jpg",
+              title: "Mobile Phones",
+              sub: "Samsung, iPhone, Tecno, Infinix & Xiaomi — sealed units, Kenya warranty.",
+              cta: `Shop phones${phones?.product_count ? ` (${phones.product_count})` : ""} →`,
+            },
+          ].map((card) => (
+            <Link
+              key={card.href}
+              href={card.href}
+              className="group relative overflow-hidden rounded-xl p-6 text-white transition-shadow hover:shadow-xl"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={card.img}
+                alt=""
+                aria-hidden="true"
+                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-navy-900/95 via-navy-900/80 to-navy-900/40" />
+              <div className="relative">
+                <p className="text-xs font-semibold uppercase tracking-wider text-amber">Electronics</p>
+                <h3 className="mt-1 text-2xl font-extrabold drop-shadow">{card.title}</h3>
+                <p className="mt-1.5 max-w-xs text-sm text-slate-200">{card.sub}</p>
+                <span className="mt-4 inline-block rounded-md bg-amber px-4 py-2 text-sm font-bold text-navy-900 transition-colors group-hover:bg-amber-500">
+                  {card.cta}
+                </span>
+              </div>
+            </Link>
+          ))}
         </div>
       </section>
 
