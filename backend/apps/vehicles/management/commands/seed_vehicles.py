@@ -87,17 +87,25 @@ class Command(BaseCommand):
             root = ensure_root(name, gpc, "vehicle")
             for child_name in children:
                 child_slug = slugify(child_name)
-                if not Category.objects.filter(slug=child_slug).exists():
+                existing = Category.objects.filter(slug=child_slug).first()
+                if existing is None:
                     root.refresh_from_db()  # treebeard path bookkeeping
                     root.add_child(
                         name=child_name, slug=child_slug, kind="vehicle",
                         google_category=gpc,
                     )
                     created += 1
+                elif existing.is_root() and existing.pk != root.pk:
+                    # Older seeds created this as a root — adopt it into the tree.
+                    root.refresh_from_db()
+                    existing.move(root, pos="sorted-child")
 
         for name, gpc, children in GENERAL_CATEGORY_TREE:
             ensure_root(name, gpc, "general")
 
+        from django.core.cache import cache
+
+        cache.delete("api:categories:v1")  # tree changed — drop the cached summary
         return created
 
     def _seed_vehicles(self, counts: dict) -> None:

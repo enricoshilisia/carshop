@@ -71,6 +71,34 @@ test("header search box works end to end", async ({ page }) => {
   await expect(page.getByText(/Denso Hybrid Wiper Blade/i)).toBeVisible();
 });
 
+test("home page shows categories, electronics and how-it-works", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: /shop parts by category/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /more than car parts/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Laptops", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Mobile Phones", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /how it works/i })).toBeVisible();
+});
+
+test("laptops shop page lists electronics products", async ({ page }) => {
+  await page.goto("/shop/laptops");
+  await expect(page.getByRole("heading", { name: "Laptops" })).toBeVisible();
+  await expect(page.getByTestId("shop-grid")).toBeVisible();
+  await expect(page.getByText(/ThinkPad|Latitude|EliteBook/i).first()).toBeVisible();
+});
+
+test("phones shop page lists electronics products", async ({ page }) => {
+  await page.goto("/shop/phones");
+  await expect(page.getByTestId("shop-grid")).toBeVisible();
+  await expect(page.getByText(/Galaxy|iPhone|Tecno/i).first()).toBeVisible();
+});
+
+test("parts category shop page with subcategory chips", async ({ page }) => {
+  await page.goto("/shop/braking-system");
+  await expect(page.getByRole("heading", { name: /braking system/i })).toBeVisible();
+  await expect(page.getByRole("link", { name: /brake pads/i }).first()).toBeVisible();
+});
+
 test("taxonomy pages: make and model listings", async ({ page }) => {
   await page.goto("/car-parts/toyota");
   await expect(page.getByRole("heading", { name: /Toyota models/i })).toBeVisible();

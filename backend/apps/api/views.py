@@ -277,6 +277,80 @@ def _vehicle_page(seo_page, page_num, brand_filter):
 
 
 # --------------------------------------------------------------------------
+# Category browsing (parts by category + general catalog: laptops, phones)
+# --------------------------------------------------------------------------
+
+@api_view(["GET"])
+def categories(request):
+    """Root categories with product counts (descendants included). Cached 1h."""
+    cache_key = "api:categories:v1"
+    body = cache.get(cache_key)
+    if body is None:
+        roots = Category.get_root_nodes()
+        body = []
+        for root in roots:
+            descendant_ids = [root.id] + [c.id for c in root.get_descendants()]
+            count = Product.objects.filter(
+                category_id__in=descendant_ids, is_active=True
+            ).count()
+            body.append({
+                "name": root.name,
+                "slug": root.slug,
+                "kind": root.kind,
+                "product_count": count,
+                "children": [
+                    {"name": c.name, "slug": c.slug} for c in root.get_children()[:10]
+                ],
+            })
+        cache.set(cache_key, body, CACHE_TTL)
+    return _cached(request, body)
+
+
+@api_view(["GET"])
+def shop_category(request, slug):
+    """Browse a category (and its descendants): parts or general goods."""
+    category = Category.objects.filter(slug=slug).first()
+    if category is None:
+        return Response({"detail": "Not found."}, status=404)
+    page_num = max(int(request.query_params.get("page", "1") or 1), 1)
+
+    descendant_ids = [category.id] + [c.id for c in category.get_descendants()]
+    products = (
+        Product.objects.filter(category_id__in=descendant_ids, is_active=True)
+        .select_related("brand", "offer")
+        .prefetch_related("images")
+        .order_by("-offer__availability", "name")
+    )
+    total = products.count()
+    start = (page_num - 1) * PAGE_SIZE
+    cards = [s.product_card(p) for p in products[start : start + PAGE_SIZE]]
+
+    ancestors = [{"name": a.name, "slug": a.slug} for a in category.get_ancestors()]
+    children = [
+        {"name": c.name, "slug": c.slug} for c in category.get_children()
+    ]
+    return _cached(request, {
+        "category": {
+            "name": category.name,
+            "slug": category.slug,
+            "kind": category.kind,
+            "description": category.description,
+            "seo_title": category.seo_title or f"{category.name} in Kenya | Corporation Premium",
+            "seo_description": category.seo_description,
+        },
+        "ancestors": ancestors,
+        "children": children,
+        "products": cards,
+        "pagination": {
+            "page": page_num,
+            "page_size": PAGE_SIZE,
+            "total": total,
+            "pages": max((total + PAGE_SIZE - 1) // PAGE_SIZE, 1),
+        },
+    })
+
+
+# --------------------------------------------------------------------------
 # Products
 # --------------------------------------------------------------------------
 

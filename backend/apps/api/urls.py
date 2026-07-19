@@ -11,6 +11,8 @@ urlpatterns = [
     path("vehicles/generations/<slug:gen>/groups/", views.groups_for_generation),
     path("vehicles/resolve/", views.resolve_vehicle),
     path("page/", views.page),
+    path("categories/", views.categories),
+    path("shop/<slug:slug>/", views.shop_category),
     path("products/<slug:slug>/", views.product_detail),
     path("products/<slug:slug>/fits/", views.product_fits),
     path("search/", views.search),

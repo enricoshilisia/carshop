@@ -13,10 +13,13 @@ export default function Header() {
         </div>
         <nav className="flex items-center gap-5 text-sm font-medium text-slate-200">
           <Link href="/car-parts" className="hover:text-amber transition-colors">
-            Shop by Vehicle
+            Car Parts
           </Link>
-          <Link href="/search?q=brake+pads" className="hover:text-amber transition-colors">
-            Popular Parts
+          <Link href="/shop/laptops" className="hover:text-amber transition-colors">
+            Laptops
+          </Link>
+          <Link href="/shop/phones" className="hover:text-amber transition-colors">
+            Phones
           </Link>
         </nav>
       </div>

@@ -19,7 +19,11 @@ class Command(BaseCommand):
     def handle(self, *args, **opts):
         criticals, warnings = [], []
 
-        for product in Product.objects.filter(is_active=True).prefetch_related("fitments"):
+        for product in Product.objects.filter(is_active=True).select_related(
+            "category"
+        ).prefetch_related("fitments"):
+            if product.category.kind == "general":
+                continue  # laptops/phones never have fitment
             fits = list(product.fitments.all())
             if not fits and not product.is_universal:
                 warnings.append(f"{product.sku}: active, no fitment, not universal")
