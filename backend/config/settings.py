@@ -149,6 +149,6 @@ SEO_MIN_PRODUCTS_STOREFRONT = 10
 SEO_MIN_PRODUCTS_VEHICLE_CATEGORY = 5
 SITEMAP_SHARD_SIZE = 45000
 
-if not DEBUG:
-    CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", default="", cast=Csv())
-    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+# Behind a TLS-terminating proxy (Caddy/Cloudflare/Passenger) in every env.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", default="", cast=Csv())

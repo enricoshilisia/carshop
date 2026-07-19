@@ -1,12 +1,24 @@
 # Free public hosting for the dev box
 
-## Current setup: Cloudflare quick tunnels (no account, free)
+## ✅ Current setup: sslip.io + Caddy (live)
 
-The machine has a public IP (20.166.120.83, Azure) but **all inbound ports are
-blocked** by the Azure network security group + Windows Firewall (no admin
-rights), so direct sslip.io hosting is impossible from inside the VM.
+NSG ports 80/443 are open. Caddy terminates TLS with free Let's Encrypt
+certificates and proxies to the local apps:
 
-Quick tunnels punch out instead:
+| Public URL | Proxies to |
+|---|---|
+| https://app.20.166.120.83.sslip.io | Next.js on :3000 |
+| https://api.20.166.120.83.sslip.io | Django on :8800 |
+
+- Config: `infra/Caddyfile` · binary: `%LOCALAPPDATA%\caddy\caddy.exe`
+- Bring the whole stack up after a reboot: `powershell -File infra\start-hosting.ps1`
+- Certs auto-renew as long as Caddy is running and 80/443 stay open.
+- Frontend env split: `NEXT_PUBLIC_API_URL=https://api.20.166.120.83.sslip.io`
+  (browser), `API_URL=http://localhost:8800` (server-side, fast local hop).
+
+## Fallback: Cloudflare quick tunnels (no account, free)
+
+If the NSG ever closes again, quick tunnels punch out instead:
 
 ```powershell
 # API (Django on :8800)
@@ -26,29 +38,10 @@ Each prints a random `https://<words>.trycloudflare.com` URL. Then:
 **Caveats:** URLs change on every tunnel restart; tunnels die when the
 machine sleeps. Demo-grade, not production.
 
-## Switching to sslip.io (when you control the Azure NSG)
+## Notes
 
-sslip.io is just DNS: `20.166.120.83.sslip.io` already resolves to this VM.
-To serve on it you need inbound ports open:
-
-1. Azure portal → the VM's Network Security Group → add inbound rules for
-   TCP 80 + 443.
-2. On the VM (as admin):
-   `New-NetFirewallRule -DisplayName Web -Direction Inbound -Protocol TCP -LocalPort 80,443 -Action Allow`
-3. Run [Caddy](https://caddyserver.com) as the front door — it gets free
-   Let's Encrypt certificates automatically:
-
-   ```
-   # Caddyfile
-   app.20.166.120.83.sslip.io {
-       reverse_proxy localhost:3000
-   }
-   api.20.166.120.83.sslip.io {
-       reverse_proxy localhost:8800
-   }
-   ```
-
-4. Set `NEXT_PUBLIC_API_URL=https://api.20.166.120.83.sslip.io`,
-   add `.sslip.io` to `ALLOWED_HOSTS` (already done), restart both apps.
-
-Stable URLs, real HTTPS, still $0 — but it needs the NSG change first.
+- sslip.io is just DNS: `anything.20.166.120.83.sslip.io` resolves to the VM.
+  If the VM's public IP ever changes, update the Caddyfile hostnames and the
+  frontend/backend env values to the new IP.
+- This serves the DEV servers (runserver + next dev). Fine for demos; for
+  real production traffic follow the cPanel/VPS deploy in BUILD_PLAN.md §9.

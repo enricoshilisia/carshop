@@ -1,0 +1,10 @@
+# Free HTTPS on sslip.io — Caddy fetches Let's Encrypt/ZeroSSL certs itself.
+# Run:  caddy run --config infra/Caddyfile
+
+app.20.166.120.83.sslip.io {
+	reverse_proxy localhost:3000
+}
+
+api.20.166.120.83.sslip.io {
+	reverse_proxy localhost:8800
+}
