@@ -10,11 +10,12 @@ Start-Process -WindowStyle Hidden -FilePath "$repo\backend\.venv\Scripts\python.
   -RedirectStandardError "$repo\backend\runserver.err.log" `
   -RedirectStandardOutput "$repo\backend\runserver.out.log"
 
-# 2. Next.js on :3000 — browser calls the public API, server calls localhost
-$env:NEXT_PUBLIC_API_URL = "https://api.20.166.120.83.sslip.io"
+# 2. Next.js on :3000 — PRODUCTION server (run `npm run build` after code
+# changes; NEXT_PUBLIC_API_URL must be set at build time, API_URL at runtime).
 $env:API_URL = "http://localhost:8800"
+$env:REVALIDATE_SECRET = "dev-revalidate-secret"
 Start-Process -WindowStyle Hidden -FilePath "cmd.exe" `
-  -ArgumentList "/c", "npm run dev > next-dev.log 2>&1" `
+  -ArgumentList "/c", "npm run start > next-server.log 2>&1" `
   -WorkingDirectory "$repo\frontend"
 
 # 3. Caddy on :80/:443 — HTTPS for app./api.20.166.120.83.sslip.io
