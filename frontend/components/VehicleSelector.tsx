@@ -42,21 +42,24 @@ export default function VehicleSelector({ compact = false }: { compact?: boolean
 
   const pick = async (field: string, value: string) => {
     const next = { ...sel, [field]: value };
-    if (field === "make") {
-      next.model = next.generation = next.trim = next.year = "";
-      setModels(value ? await fetchJson(`/api/v1/vehicles/makes/${value}/models/`) : []);
-      setGens([]);
-      setTrims([]);
-    } else if (field === "model") {
-      next.generation = next.trim = next.year = "";
-      setGens(value ? await fetchJson(`/api/v1/vehicles/models/${value}/generations/`) : []);
-      setTrims([]);
-    } else if (field === "generation") {
-      next.trim = next.year = "";
-      setTrims(value ? await fetchJson(`/api/v1/vehicles/generations/${value}/trims/`) : []);
-    }
+    if (field === "make") next.model = next.generation = next.trim = next.year = "";
+    else if (field === "model") next.generation = next.trim = next.year = "";
+    else if (field === "generation") next.trim = next.year = "";
+    // Commit the selection BEFORE fetching dependent options — on a slow
+    // connection the user can hit "Find parts" while the fetch is in flight,
+    // and it must see this pick, not the previous state.
     setSel(next);
     setError("");
+    if (field === "make") {
+      setGens([]);
+      setTrims([]);
+      setModels(value ? await fetchJson(`/api/v1/vehicles/makes/${value}/models/`) : []);
+    } else if (field === "model") {
+      setTrims([]);
+      setGens(value ? await fetchJson(`/api/v1/vehicles/models/${value}/generations/`) : []);
+    } else if (field === "generation") {
+      setTrims(value ? await fetchJson(`/api/v1/vehicles/generations/${value}/trims/`) : []);
+    }
   };
 
   const findParts = async () => {
